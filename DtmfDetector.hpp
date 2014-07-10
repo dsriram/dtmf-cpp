@@ -112,7 +112,7 @@ protected:
     static INT32 dialTonesToOhersDialTones;
 
     // This protected function determines the tone present in a single frame.
-    char DTMF_detection(INT16 short_array_samples[]);
+    // char DTMF_detection(INT16 short_array_samples[]);
 public:
 
     // frameSize_ - input frame size
@@ -122,6 +122,7 @@ public:
     void dtmfDetecting(INT16 inputFrame[]); // The DTMF detection.
     // The size of a inputFrame must be equal of a frameSize_, who
     // was set in constructor.
+    char DTMF_detection(INT16 short_array_samples[]);
 };
 
 #endif
