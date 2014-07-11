@@ -24,7 +24,7 @@
 //
 // The size of the buffer we use for reading & processing the audio samples.
 //
-#define BUFLEN 512
+#define BUFLEN 128
 
 using namespace std;
 
@@ -299,7 +299,7 @@ main(int argc, char **argv)
         //
         for (int j = 0; j < BUFLEN; ++j)
             sbuf[j] = cbuf[j] << 8;
-        detector.zerosIndexDialButton();
+        //detector.zerosIndexDialButton();
 
         intToFloat( sbuf, floatInput, BUFLEN );
         // perform the filtering
@@ -308,9 +308,9 @@ main(int argc, char **argv)
         // convert to ints
         floatToInt( floatOutput, sbuf, BUFLEN );
 
-         //detector.dtmfDetecting(sbuf);
-         cout << i << ": `" << detector.DTMF_detection(sbuf) << "'" << endl;
-         //cout << i << ": `" << detector.getDialButtonsArray() << "'" << endl;
+         detector.dtmfDetecting(sbuf);
+         //cout << i << ": `" << detector.DTMF_detection(sbuf) << "'" << endl;
+         cout << i << ": `" << detector.getDialButtonsArray() << "'" << endl;
     }
     cout << endl;
     fin.close();

@@ -12,6 +12,8 @@
 #include <cstdio>
 #endif
 
+#undef DEBUG
+
 // This is the same function as in DtmfGenerator.cpp
 static inline INT32 MPY48SR(INT16 o16, INT32 o32)
 {
@@ -196,6 +198,7 @@ DtmfDetector::DtmfDetector(INT32 frameSize_): frameSize(frameSize_)
     frameCount = 0;
     prevDialButton = ' ';
     permissionFlag = 0;
+    silenceCount = 0;
 }
 //---------------------------------------------------------------------
 DtmfDetector::~DtmfDetector()
@@ -210,6 +213,8 @@ void DtmfDetector::dtmfDetecting(INT16 input_array[])
     // temp_dial_button     A tone detected in part of the input_array
     UINT32 ii;
     char temp_dial_button;
+    
+    //printf("index: %d\n", indexForDialButtons);
 
     // Copy the input array into the middle of pArraySamples.
     // I think the first frameCount samples contain the last batch from the
@@ -248,12 +253,17 @@ void DtmfDetector::dtmfDetecting(INT16 input_array[])
             {
                 if(temp_dial_button != ' ')
                 {
-                    dialButtons[indexForDialButtons++] = temp_dial_button;
+                    dialButtons[indexForDialButtons] = temp_dial_button;
+                    indexForDialButtons++;
                     // NUL-terminate the string.
-                    dialButtons[indexForDialButtons] = 0;
+                    dialButtons[indexForDialButtons] = '\0';
                     // If we've gone out of bounds, wrap around.
-                    if(indexForDialButtons >= 64)
+
+                    //printf("index: %d\n", indexForDialButtons);
+                    if(indexForDialButtons >= 64) {
+                         printf("indexoverflow: %d\n", indexForDialButtons);
                         indexForDialButtons = 0;
+                    }
                 }
                 permissionFlag = 0;
             }
@@ -273,6 +283,18 @@ void DtmfDetector::dtmfDetecting(INT16 input_array[])
 
             temp_index += SAMPLES;
             frameCount -= SAMPLES;
+
+            if(temp_dial_button == ' ') {
+                silenceCount++;
+            }
+
+            if (silenceCount > SILENCE_THRESHOLD) {
+                silenceCount = 0;
+                if(indexForDialButtons != 0) {
+                    triggerDetection();
+                    indexForDialButtons = 0;
+                }
+            }
         }
 
         //
@@ -281,6 +303,7 @@ void DtmfDetector::dtmfDetecting(INT16 input_array[])
         // samples to the beginning of our array and deal with them
         // next time this function is called.
         //
+
         for(ii=0; ii < frameCount; ii++)
         {
             pArraySamples[ii] = pArraySamples[ii + temp_index];
@@ -544,4 +567,9 @@ char DtmfDetector::DTMF_detection(INT16 short_array_samples[])
     }
 
     return return_value;
+}
+
+void DtmfDetector::triggerDetection() {
+    printf("Detection Triggered\n");
+    printf("%s\n",&dialButtons);
 }

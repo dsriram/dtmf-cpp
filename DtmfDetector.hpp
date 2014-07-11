@@ -17,7 +17,7 @@ typedef Types<sizeof(long int), sizeof(int), sizeof(short int), sizeof(char)>::U
 typedef Types<sizeof(long int), sizeof(int), sizeof(short int), sizeof(char)>::Int16     INT16;
 typedef Types<sizeof(long int), sizeof(int), sizeof(short int), sizeof(char)>::Uint16    UINT16;
 
-
+#define SILENCE_THRESHOLD 16
 // DTMF detector object
 
 // N.B. Not sure why this interface is necessary, as the only class to 
@@ -59,6 +59,10 @@ public:
 
 class DtmfDetector : public DtmfDetectorInterface
 {
+
+    // Threshold to flush out the digit buffer
+    mutable INT32 silenceCount = 0;
+
 protected:
     // These coefficients include the 8 DTMF frequencies plus 10 harmonics.
     static const unsigned COEFF_NUMBER=18;
@@ -111,6 +115,7 @@ protected:
     static INT32 dialTonesToOhersTones;
     static INT32 dialTonesToOhersDialTones;
 
+    void triggerDetection();
     // This protected function determines the tone present in a single frame.
     // char DTMF_detection(INT16 short_array_samples[]);
 public:
